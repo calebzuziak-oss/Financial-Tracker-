@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0B131B" />
+<title>Investment Tracker V2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0B131B;
+    --card-bg: #13202C;
+    --card-bg-hover: #182837;
+    --card-inner: #192A3A;
+    --border: #233748;
+    --border-bright: #364F65;
+    --text-main: #F0F4F8;
+    --text-muted: #8E9EA9;
+    --gold: #D4AF37;
+    --gold-glow: rgba(212, 175, 55, 0.15);
+    --gold-light: #E5C358;
+    --emerald: #2EBE7B;
+    --emerald-glow: rgba(46, 190, 123, 0.15);
+    --rose: #E55353;
+    --rose-glow: rgba(229, 83, 83, 0.15);
+    --teal: #38BDF8;
+    --purple: #A855F7;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-serif: 'Fraunces', Georgia, serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html, body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 60px;
+  }
+
+  .container {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 16px 14px 40px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding-top: 4px;
+  }
+  .brand-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .badge-v2 {
+    background: var(--gold-glow);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .brand-title {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+  }
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* Utility Buttons */
+  .btn-icon {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-icon:hover, .btn-icon:active {
+    color: var(--text-main);
+    border-color: var(--border-bright);
+    background: var(--card-bg-hover);
+  }
+  .btn-icon.gold { color: var(--gold); border-color: rgba(212, 175, 55, 0.4); }
+  .btn-icon.spin svg { animation: spin 0.8s linear infinite; }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  /* Navigation Tabs */
+  .tab-bar {
+    display: flex;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 16px;
+    gap: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .tab-btn.active {
+    background: var(--card-inner);
+    color: var(--gold-light);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Live Price Banner Card */
+  .ticker-card {
+    background: linear-gradient(145deg, #13202C 0%, #172635 100%);
+    border-color: rgba(212, 175, 55, 0.3);
+  }
+  .ticker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .ticker-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ticker-pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 8px var(--emerald);
+  }
+  .ticker-name {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .price-display-group {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .price-large {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+  .price-change-pill {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .price-change-pill.positive { background: var(--emerald-glow); color: var(--emerald); border: 1px solid rgba(46,190,123,0.3); }
+  .price-change-pill.negative { background: var(--rose-glow); color: var(--rose); border: 1px solid rgba(229,83,83,0.3); }
+  
+  .ticker-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .status-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--card-inner);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  /* Net Worth Card */
+  .networth-card {
+    background: linear-gradient(135deg, #192938 0%, #111B24 100%);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+  }
+  .networth-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .networth-amount {
+    font-family: var(--font-mono);
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 4px 0 12px;
+    letter-spacing: -0.03em;
+  }
+  .networth-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .nw-stat-box {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .nw-stat-title { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+  .nw-stat-val { font-family: var(--font-mono); font-size: 14px; font-weight: 600; margin-top: 2px; }
+
+  /* Allocation Bar */
+  .alloc-bar {
+    height: 10px;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    background: var(--card-inner);
+    margin: 10px 0;
+  }
+  .alloc-segment { height: 100%; transition: width 0.4s ease; }
+  .alloc-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+
+  /* Account Cards */
+  .account-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .account-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--card-inner);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .account-title-area { flex: 1; }
+  .account-name { font-family: var(--font-serif); font-size: 18px; font-weight: 600; }
+  .account-sub { font-size: 11px; color: var(--text-muted); }
+
+  .stat-grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mini-stat {
+    background: var(--card-inner);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .mini-stat-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .mini-stat-val { font-family: var(--font-mono); font-size: 15px; font-weight: 600; margin-top: 2px; }
+
+  .val-positive { color: var(--emerald); }
+  .val-negative { color: var(--rose); }
+
+  /* Progress Bar (IRA limit) */
+  .ira-progress-container {
+    background: var(--card-inner);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+  .ira-progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .ira-progress-track {
+    height: 6px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .ira-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--emerald));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  /* Ledger List */
+  .ledger-list {
+    border-top: 1px dashed var(--border);
+    margin-top: 10px;
+    padding-top: 4px;
+  }
+  .ledger-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+    font-size: 12px;
+  }
+  .ledger-date { color: var(--text-muted); width: 75px; font-family: var(--font-mono); flex-shrink: 0; }
+  .ledger-details { flex: 1; margin: 0 8px; }
+  .ledger-amt { font-family: var(--font-mono); font-weight: 600; color: var(--text-main); }
+  .ledger-sub { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+  .ledger-del {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .ledger-del:hover { color: var(--rose); background: rgba(229,83,83,0.1); }
+
+  /* Buttons & Forms */
+  .btn-action {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--gold);
+    background: var(--gold-glow);
+    color: var(--gold-light);
+    font-weight: 600;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .btn-action:hover { background: rgba(212, 175, 55, 0.25); color: #FFF; }
+
+  .form-box {
+    background: var(--card-inner);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 10px;
+  }
+  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field-group { display: flex; flex-direction: column; margin-bottom: 8px; }
+  .field-group label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 4px; }
+  .field-group input, .field-group select {
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-main);
+    padding: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    width: 100%;
+  }
+  .field-group input:focus { outline: none; border-color: var(--gold); }
+  
+  .form-row-btns { display: flex; gap: 8px; margin-top: 6px; }
+  .btn-submit { flex: 1; padding: 8px; background: var(--gold); color: var(--bg-dark); border: none; border-radius: 6px; font-weight: 700; cursor: pointer; }
+  .btn-cancel { flex: 1; padding: 8px; background: transparent; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+
+  /* Projection & Goal Cards */
+  .proj-card {
+    background: linear-gradient(145deg, #162432 0%, #111C27 100%);
+    border-color: rgba(56, 189, 248, 0.3);
+  }
+  .proj-slider-group { margin: 12px 0; }
+  .proj-slider-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; color: var(--text-muted); }
+  .proj-slider {
+    width: 100%;
+    accent-color: var(--teal);
+    cursor: pointer;
+  }
+  .chart-container {
+    width: 100%;
+    height: 180px;
+    margin-top: 12px;
+    position: relative;
+  }
+
+  /* Modals */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: auto; }
+  .modal-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 480px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .modal-title { font-family: var(--font-serif); font-size: 20px; margin-bottom: 12px; color: var(--gold-light); }
+
+  /* Toast Notifications */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--card-inner);
+    border: 1px solid var(--gold);
+    color: var(--text-main);
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Utility helpers */
+  .num { font-family: var(--font-mono); }
+  .empty-state { color: var(--text-muted); font-size: 12px; text-align: center; padding: 14px; font-style: italic; }
+  
+  @media (max-width: 480px) {
+    .brand-title { font-size: 22px; }
+    .price-large { font-size: 24px; }
+    .networth-amount { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <!-- Dynamic JS Content Rendered Here -->
+  <div style="text-align:center; padding: 60px 0; color: var(--text-muted);">
+    Loading Personal Wealth Terminal...
+  </div>
+</div>
+
+<!-- Modal Dialog Container -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card" id="modalContent"></div>
+</div>
+
+<!-- Global Toast Notification -->
+<div class="toast" id="toast">
+  <span id="toastMsg">Action complete</span>
+</div>
+
+<script>
+(function() {
+  const STORAGE_KEY = 'wealth_terminal_v2_data';
+
+  // Default baseline data state
+  const DEFAULT_STATE = {
+    fxaixPrice: 267.12,
+    fxaixChange: 0.86,
+    fxaixChangePct: 0.32,
+    fxaixLastUpdated: new Date().toISOString().slice(0,10),
+    fxaixSource: 'Live NAV API',
+    autoSyncEnabled: true,
+    activeTab: 'overview', // 'overview', 'projections', 'goals'
+    goalTarget: 100000,
+    brokerage: [
+      { id: 'b1', date: '2025-01-15', amount: 2500.00, price: 245.10, shares: 10.200, note: 'Initial Deposit' },
+      { id: 'b2', date: '2025-06-10', amount: 1500.00, price: 258.40, shares: 5.805, note: 'Monthly Savings' }
+    ],
+    rothIra: [
+      { id: 'r1', date: '2025-01-02', amount: 3500.00, price: 242.00, shares: 14.463, note: '2025 Contribution' },
+      { id: 'r2', date: '2026-01-10', amount: 3500.00, price: 262.50, shares: 13.333, note: '2026 Contribution' }
+    ],
+    hysa: { balance: 12500.00, rate: 4.50 },
+    customAssets: []
+  };
+
+  let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  let ui = {
+    refreshing: false,
+    brokerageFormOpen: false,
+    rothFormOpen: false,
+    editingHysa: false,
+    editingPrice: false
+  };
+
+  // Inline SVG icons collection
+  const ICONS = {
+    refresh: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>`,
+    plus: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+    trash: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+    pencil: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+    check: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    x: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+    trendingUp: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+    trendingDown: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>`,
+    landmark: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 21 8 3 8"/></svg>`,
+    piggy: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8.8 3.5 2 4.5V20l3-1 3 1v-3.2c1.2.5 2.5.5 3.7 0V20l3-1 3 1v-3.5c1.2-1 2-2.7 2-4.5 0-5.3-7.5-6.5-11-5-.2-.6-1.5-2-3-2z"/></svg>`,
+    banknote: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>`,
+    chart: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+    target: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+    download: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`
+  };
+
+  // Helper formatting functions
+  function uid() { return 'id_' + Math.random().toString(36).substr(2, 9); }
+  function fmtUSD(val) {
+    return (val || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtShares(val) {
+    return (val || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+  }
+  function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    const tm = document.getElementById('toastMsg');
+    if (!t || !tm) return;
+    tm.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Persistence
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) { console.error('LocalStorage save error', e); }
+  }
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        state = Object.assign({}, DEFAULT_STATE, parsed);
+      }
+    } catch(e) {
+      console.error('LocalStorage load error', e);
+    }
+    // Perform daily FXAIX price check on app load
+    fetchLiveFXAIXPrice(false);
+  }
+
+  // Multi-Proxy FXAIX Live Price Engine
+  async function fetchLiveFXAIXPrice(forced = false) {
+    if (!forced && state.fxaixLastUpdated === todayISO()) {
+      render();
+      return;
+    }
+
+    ui.refreshing = true;
+    render();
+
+    const targetUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/FXAIX?range=5d&interval=1d';
+    let fetched = false;
+
+    // Direct / Proxy endpoint fallback list
+    const fetchEndpoints = [
+      targetUrl,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+      `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+    ];
+
+    for (const url of fetchEndpoints) {
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) continue;
+        const data = await res.json();
+        const result = data?.chart?.result?.[0];
+        if (result && result.meta) {
+          const meta = result.meta;
+          const currentPrice = meta.regularMarketPrice || meta.chartPreviousClose;
+          const prevClose = meta.chartPreviousClose || currentPrice;
+          
+          if (currentPrice && currentPrice > 0) {
+            state.fxaixPrice = currentPrice;
+            state.fxaixChange = currentPrice - prevClose;
+            state.fxaixChangePct = prevClose > 0 ? ((currentPrice - prevClose) / prevClose) * 100 : 0;
+            state.fxaixLastUpdated = todayISO();
+            state.fxaixSource = 'Live NAV (Daily Sync)';
+            fetched = true;
+            saveState();
+            if (forced) showToast('FXAIX price updated successfully!');
+            break;
+          }
+        }
+      } catch (e) {
+        // try next fallback
+      }
+    }
+
+    if (!fetched && forced) {
+      showToast('Live fetch busy. Using manual input mode.');
+    }
+
+    ui.refreshing = false;
+    render();
+  }
+
+  // Calculation helpers
+  function calcAccountTotals(entries, currentPrice) {
+    const invested = entries.reduce((s, e) => s + (e.amount || 0), 0);
+    const shares = entries.reduce((s, e) => s + (e.shares || 0), 0);
+    const currentValue = shares * currentPrice;
+    const gain = currentValue - invested;
+    const gainPct = invested > 0 ? (gain / invested) * 100 : 0;
+    const avgCostPerShare = shares > 0 ? invested / shares : 0;
+    return { invested, shares, currentValue, gain, gainPct, avgCostPerShare };
+  }
+
+  /* HTML Component Renderers */
+  function renderHeader() {
+    return `
+      <div class="header">
+        <div>
+          <div class="brand-eyebrow">
+            Personal Ledger <span class="badge-v2">V2.0</span>
+          </div>
+          <h1 class="brand-title">Wealth Terminal</h1>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon ${ui.refreshing ? 'spin' : ''}" id="btnRefresh" title="Fetch Live FXAIX Price">
+            ${ICONS.refresh}
+          </button>
+          <button class="btn-icon" id="btnExportModal" title="Export / Import Data">
+            ${ICONS.download}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTabs() {
+    return `
+      <div class="tab-bar">
+        <button class="tab-btn ${state.activeTab === 'overview' ? 'active' : ''}" data-tab="overview">
+          ${ICONS.landmark} Overview
+        </button>
+        <button class="tab-btn ${state.activeTab === 'projections' ? 'active' : ''}" data-tab="projections">
+          ${ICONS.chart} Forecast
+        </button>
+        <button class="tab-btn ${state.activeTab === 'goals' ? 'active' : ''}" data-tab="goals">
+          ${ICONS.target} Milestones
+        </button>
+      </div>
+    `;
+  }
+
+  function renderTickerCard() {
+    const isPos = state.fxaixChange >= 0;
+    const changeSign = isPos ? '+' : '';
+    
+    if (ui.editingPrice) {
+      return `
+        <div class="card ticker-card">
+          <div class="ticker-header">
+            <div>
+              <div class="ticker-tag">EDIT FXAIX NAV PRICE</div>
+              <div class="ticker-name">Manual override for price per share</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <input type="number" step="0.01" id="manualPriceInput" value="${state.fxaixPrice}" style="background:var(--card-inner); border:1px solid var(--gold); color:var(--text-main); font-family:var(--font-mono); font-size:18px; padding:6px 10px; border-radius:8px; flex:1;" />
+            <button class="btn-icon gold" id="btnSaveManualPrice">${ICONS.check}</button>
+            <button class="btn-icon" id="btnCancelManualPrice">${ICONS.x}</button>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="card ticker-card">
+        <div class="ticker-header">
+          <div>
+            <div class="ticker-tag">
+              <span class="ticker-pulse"></span> FXAIX &middot; FIDELITY 500 INDEX
+            </div>
+            <div class="ticker-name">S&P 500 Index Mutual Fund</div>
+          </div>
+          <button class="btn-icon" id="btnEditPrice" title="Edit Price" style="width:30px; height:30px;">${ICONS.pencil}</button>
+        </div>
+        <div class="price-display-group">
+          <div class="price-large">${fmtUSD(state.fxaixPrice)}</div>
+          <div class="price-change-pill ${isPos ? 'positive' : 'negative'}">
+            ${isPos ? ICONS.trendingUp : ICONS.trendingDown}
+            ${changeSign}${fmtUSD(state.fxaixChange)} (${changeSign}${state.fxaixChangePct.toFixed(2)}%)
+          </div>
+        </div>
+        <div class="ticker-meta">
+          <span>Source: ${state.fxaixSource}</span>
+          <span class="status-badge">As of ${state.fxaixLastUpdated}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderNetWorthCard(brokerage, roth) {
+    const hysaBal = state.hysa.balance || 0;
+    const totalNetWorth = brokerage.currentValue + roth.currentValue + hysaBal;
+    const totalInvested = brokerage.invested + roth.invested + hysaBal;
+    const totalGain = (brokerage.currentValue + roth.currentValue) - (brokerage.invested + roth.invested);
+    const totalGainPct = (brokerage.invested + roth.invested) > 0 ? (totalGain / (brokerage.invested + roth.invested)) * 100 : 0;
+
+    const brokPct = totalNetWorth > 0 ? (brokerage.currentValue / totalNetWorth) * 100 : 0;
+    const rothPct = totalNetWorth > 0 ? (roth.currentValue / totalNetWorth) * 100 : 0;
+    const hysaPct = totalNetWorth > 0 ? (hysaBal / totalNetWorth) * 100 : 0;
+
+    return `
+      <div class="card networth-card">
+        <div class="networth-label">Total Portfolio Net Worth</div>
+        <div class="networth-amount">${fmtUSD(totalNetWorth)}</div>
+        
+        <div class="networth-stats">
+          <div class="nw-stat-box">
+            <div class="nw-stat-title">Total Invested</div>
+            <div class="nw-stat-val">${fmtUSD(totalInvested)}</div>
+          </div>
+          <div class="nw-stat-box">
+            <div class="nw-stat-title">Unrealized Gain</div>
+            <div class="nw-stat-val ${totalGain >= 0 ? 'val-positive' : 'val-negative'}">
+              ${totalGain >= 0 ? '+' : ''}${fmtUSD(totalGain)} (${totalGainPct.toFixed(1)}%)
+            </div>
+          </div>
+        </div>
+
+        <div class="alloc-bar">
+          <div class="alloc-segment" style="width:${brokPct}%; background:var(--gold);"></div>
+          <div class="alloc-segment" style="width:${rothPct}%; background:var(--emerald);"></div>
+          <div class="alloc-segment" style="width:${hysaPct}%; background:var(--teal);"></div>
+        </div>
+
+        <div class="alloc-legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--gold);"></span>
+            Brokerage ${brokPct.toFixed(0)}%
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--emerald);"></span>
+            Roth IRA ${rothPct.toFixed(0)}%
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--teal);"></span>
+            HYSA Cash ${hysaPct.toFixed(0)}%
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAccountCard(accKey, title, subtitle, iconSvg, data, entries) {
+    const isFormOpen = ui[accKey + 'FormOpen'];
+    
+    // Roth IRA 2026 contribution limit check ($7,000)
+    let rothProgressHTML = '';
+    if (accKey === 'rothIra') {
+      const currentYear = new Date().getFullYear().toString();
+      const thisYearContribs = entries
+        .filter(e => e.date && e.date.startsWith(currentYear))
+        .reduce((sum, e) => sum + e.amount, 0);
+      const limit = 7000;
+      const pct = Math.min((thisYearContribs / limit) * 100, 100);
+      
+      rothProgressHTML = `
+        <div class="ira-progress-container">
+          <div class="ira-progress-header">
+            <span>${currentYear} Contribution Cap ($7,000)</span>
+            <span class="num">${fmtUSD(thisYearContribs)} / $7,000</span>
+          </div>
+          <div class="ira-progress-track">
+            <div class="ira-progress-fill" style="width: ${pct}%;"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    const rowsHTML = entries.length === 0 
+      ? `<div class="empty-state">No investments recorded yet.</div>`
+      : entries.slice().sort((a,b) => b.date.localeCompare(a.date)).map(e => `
+        <div class="ledger-row">
+          <span class="ledger-date">${e.date}</span>
+          <div class="ledger-details">
+            <div class="ledger-amt">${fmtUSD(e.amount)}</div>
+            <div class="ledger-sub">${fmtShares(e.shares)} sh @ ${fmtUSD(e.price)} ${e.note ? '&middot; ' + e.note : ''}</div>
+          </div>
+          <button class="ledger-del" data-action="delete-entry" data-acc="${accKey}" data-id="${e.id}">${ICONS.trash}</button>
+        </div>
+      `).join('');
+
+    return `
+      <div class="card">
+        <div class="account-header">
+          <div class="account-icon">${iconSvg}</div>
+          <div class="account-title-area">
+            <div class="account-name">${title}</div>
+            <div class="account-sub">${subtitle}</div>
+          </div>
+        </div>
+
+        <div class="stat-grid-2x2">
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">Current Value</div>
+            <div class="mini-stat-val">${fmtUSD(data.currentValue)}</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">Shares Owned</div>
+            <div class="mini-stat-val">${fmtShares(data.shares)}</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">Total Invested</div>
+            <div class="mini-stat-val">${fmtUSD(data.invested)}</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">Gain / Loss</div>
+            <div class="mini-stat-val ${data.gain >= 0 ? 'val-positive' : 'val-negative'}">
+              ${data.gain >= 0 ? '+' : ''}${fmtUSD(data.gain)} (${data.gainPct.toFixed(1)}%)
+            </div>
+          </div>
+        </div>
+
+        ${rothProgressHTML}
+
+        <div class="ledger-list">${rowsHTML}</div>
+
+        ${isFormOpen ? `
+          <div class="form-box">
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label>Date</label>
+                <input type="date" id="inputDate_${accKey}" value="${todayISO()}" />
+              </div>
+              <div class="field-group">
+                <label>Amount ($)</label>
+                <input type="number" step="0.01" id="inputAmt_${accKey}" placeholder="500.00" />
+              </div>
+              <div class="field-group">
+                <label>Price / Share ($)</label>
+                <input type="number" step="0.01" id="inputPrice_${accKey}" value="${state.fxaixPrice}" />
+              </div>
+              <div class="field-group">
+                <label>Note / Tag</label>
+                <input type="text" id="inputNote_${accKey}" placeholder="e.g. Monthly buy" />
+              </div>
+            </div>
+            <div class="form-row-btns">
+              <button class="btn-cancel" data-action="close-form" data-acc="${accKey}">Cancel</button>
+              <button class="btn-submit" data-action="save-entry" data-acc="${accKey}">Log Investment</button>
+            </div>
+          </div>
+        ` : `
+          <button class="btn-action" style="margin-top:10px;" data-action="open-form" data-acc="${accKey}">
+            ${ICONS.plus} Add Investment Entry
+          </button>
+        `}
+      </div>
+    `;
+  }
+
+  function renderHysaCard() {
+    const bal = state.hysa.balance || 0;
+    const rate = state.hysa.rate || 0;
+    const annualInterest = bal * (rate / 100);
+    const monthlyInterest = annualInterest / 12;
+
+    if (ui.editingHysa) {
+      return `
+        <div class="card">
+          <div class="account-header">
+            <div class="account-icon" style="color:var(--teal);">${ICONS.banknote}</div>
+            <div class="account-title-area">
+              <div class="account-name">High-Yield Savings</div>
+              <div class="account-sub">Update cash holdings & APY</div>
+            </div>
+          </div>
+          <div class="form-box">
+            <div class="form-grid-2">
+              <div class="field-group">
+                <label>Cash Balance ($)</label>
+                <input type="number" step="0.01" id="inputHysaBalance" value="${bal}" />
+              </div>
+              <div class="field-group">
+                <label>APY Interest Rate (%)</label>
+                <input type="number" step="0.01" id="inputHysaRate" value="${rate}" />
+              </div>
+            </div>
+            <div class="form-row-btns">
+              <button class="btn-cancel" id="btnCancelHysa">Cancel</button>
+              <button class="btn-submit" id="btnSaveHysa">Save HYSA</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="card">
+        <div class="account-header">
+          <div class="account-icon" style="color:var(--teal);">${ICONS.banknote}</div>
+          <div class="account-title-area">
+            <div class="account-name">High-Yield Savings</div>
+            <div class="account-sub">Emergency Reserve & Cash &middot; ${rate.toFixed(2)}% APY</div>
+          </div>
+          <button class="btn-icon" id="btnEditHysa" style="width:30px; height:30px;">${ICONS.pencil}</button>
+        </div>
+
+        <div class="stat-grid-2x2">
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">Cash Balance</div>
+            <div class="mini-stat-val" style="color:var(--teal);">${fmtUSD(bal)}</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">Annual Yield</div>
+            <div class="mini-stat-val">${rate.toFixed(2)}% APY</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">Est. Monthly Interest</div>
+            <div class="mini-stat-val val-positive">+${fmtUSD(monthlyInterest)}</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">Est. Annual Interest</div>
+            <div class="mini-stat-val val-positive">+${fmtUSD(annualInterest)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderProjectionsTab(totalNetWorth) {
+    const defaultMonthlyContrib = 500;
+    const annualReturnRate = 0.08; // 8% avg stock return
+
+    return `
+      <div class="card proj-card">
+        <div class="account-header">
+          <div class="account-icon" style="color:var(--teal);">${ICONS.chart}</div>
+          <div>
+            <div class="account-name">Compound Growth Projection</div>
+            <div class="account-sub">Forecast portfolio value based on monthly additions</div>
+          </div>
+        </div>
+
+        <div class="proj-slider-group">
+          <div class="proj-slider-header">
+            <span>Monthly Contribution:</span>
+            <span class="num" id="sliderContribVal" style="color:var(--gold); font-weight:700;">$500 / mo</span>
+          </div>
+          <input type="range" class="proj-slider" id="sliderContrib" min="0" max="5000" step="50" value="${defaultMonthlyContrib}">
+        </div>
+
+        <div class="proj-slider-group">
+          <div class="proj-slider-header">
+            <span>Expected Annual Return:</span>
+            <span class="num" id="sliderReturnVal" style="color:var(--emerald); font-weight:700;">8.0%</span>
+          </div>
+          <input type="range" class="proj-slider" id="sliderReturn" min="3" max="14" step="0.5" value="8">
+        </div>
+
+        <div class="stat-grid-2x2" style="margin-top:14px;">
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">5 Years</div>
+            <div class="mini-stat-val num" id="proj5yr">$0</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">10 Years</div>
+            <div class="mini-stat-val num" id="proj10yr">$0</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">20 Years</div>
+            <div class="mini-stat-val num" id="proj20yr">$0</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-lbl">30 Years</div>
+            <div class="mini-stat-val num" id="proj30yr" style="color:var(--gold);">$0</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderGoalsTab(currentNetWorth) {
+    const target = state.goalTarget || 100000;
+    const pct = Math.min((currentNetWorth / target) * 100, 100);
+    const remaining = Math.max(target - currentNetWorth, 0);
+
+    return `
+      <div class="card">
+        <div class="account-header">
+          <div class="account-icon" style="color:var(--purple);">${ICONS.target}</div>
+          <div>
+            <div class="account-name">Wealth Milestone Goal</div>
+            <div class="account-sub">Track progress to your next target</div>
+          </div>
+        </div>
+
+        <div style="text-align:center; padding: 14px 0;">
+          <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em;">Current Target</div>
+          <div class="num" style="font-size:32px; font-weight:700; color:var(--gold); margin: 4px 0;">${fmtUSD(target)}</div>
+          <div style="font-size:13px; color:var(--text-muted);">${pct.toFixed(1)}% Achieved &middot; ${fmtUSD(remaining)} remaining</div>
+        </div>
+
+        <div class="ira-progress-track" style="height:12px; border-radius:6px;">
+          <div class="ira-progress-fill" style="width:${pct}%; background: linear-gradient(90deg, var(--gold), var(--teal));"></div>
+        </div>
+
+        <div class="form-box" style="margin-top:16px;">
+          <div class="field-group">
+            <label>Update Financial Milestone Goal ($)</label>
+            <div style="display:flex; gap:8px;">
+              <input type="number" step="1000" id="inputGoalTarget" value="${target}" />
+              <button class="btn-submit" id="btnSaveGoal" style="flex:0 0 100px;">Set Goal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* Main Render Routine */
+  function render() {
+    const app = document.getElementById('app');
+    if (!app) return;
+
+    const brokerageData = calcAccountTotals(state.brokerage, state.fxaixPrice);
+    const rothData = calcAccountTotals(state.rothIra, state.fxaixPrice);
+    const currentNetWorth = brokerageData.currentValue + rothData.currentValue + (state.hysa.balance || 0);
+
+    let mainContent = '';
+
+    if (state.activeTab === 'overview') {
+      mainContent = `
+        ${renderTickerCard()}
+        ${renderNetWorthCard(brokerageData, rothData)}
+        ${renderAccountCard('brokerage', 'Taxable Brokerage', 'FXAIX Holdings', ICONS.landmark, brokerageData, state.brokerage)}
+        ${renderAccountCard('rothIra', 'Roth IRA Account', 'Tax-Advantaged FXAIX', ICONS.piggy, rothData, state.rothIra)}
+        ${renderHysaCard()}
+      `;
+    } else if (state.activeTab === 'projections') {
+      mainContent = renderProjectionsTab(currentNetWorth);
+    } else if (state.activeTab === 'goals') {
+      mainContent = renderGoalsTab(currentNetWorth);
+    }
+
+    app.innerHTML = `
+      ${renderHeader()}
+      ${renderTabs()}
+      ${mainContent}
+    `;
+
+    attachEventListeners(currentNetWorth);
+  }
+
+  /* Event Handler Attachment */
+  function attachEventListeners(currentNetWorth) {
+    // Tab Switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        state.activeTab = e.currentTarget.dataset.tab;
+        saveState();
+        render();
+      });
+    });
+
+    // Refresh Price
+    const btnRefresh = document.getElementById('btnRefresh');
+    if (btnRefresh) {
+      btnRefresh.addEventListener('click', () => fetchLiveFXAIXPrice(true));
+    }
+
+    // Export Modal
+    const btnExportModal = document.getElementById('btnExportModal');
+    if (btnExportModal) {
+      btnExportModal.addEventListener('click', openExportModal);
+    }
+
+    // Price Edit Actions
+    const btnEditPrice = document.getElementById('btnEditPrice');
+    if (btnEditPrice) {
+      btnEditPrice.addEventListener('click', () => { ui.editingPrice = true; render(); });
+    }
+    const btnCancelManualPrice = document.getElementById('btnCancelManualPrice');
+    if (btnCancelManualPrice) {
+      btnCancelManualPrice.addEventListener('click', () => { ui.editingPrice = false; render(); });
+    }
+    const btnSaveManualPrice = document.getElementById('btnSaveManualPrice');
+    if (btnSaveManualPrice) {
+      btnSaveManualPrice.addEventListener('click', () => {
+        const inp = document.getElementById('manualPriceInput');
+        if (inp) {
+          const val = parseFloat(inp.value);
+          if (val > 0) {
+            state.fxaixPrice = val;
+            state.fxaixLastUpdated = todayISO();
+            state.fxaixSource = 'Manual Entry';
+            saveState();
+            showToast('Manual price saved!');
+          }
+        }
+        ui.editingPrice = false;
+        render();
+      });
+    }
+
+    // Account Form Toggles & Actions
+    document.querySelectorAll('[data-action]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const btn = e.currentTarget;
+        const action = btn.dataset.action;
+        const acc = btn.dataset.acc;
+
+        if (action === 'open-form') {
+          ui[acc + 'FormOpen'] = true;
+          render();
+        } else if (action === 'close-form') {
+          ui[acc + 'FormOpen'] = false;
+          render();
+        } else if (action === 'save-entry') {
+          saveAccountEntry(acc);
+        } else if (action === 'delete-entry') {
+          deleteAccountEntry(acc, btn.dataset.id);
+        }
+      });
+    });
+
+    // HYSA Actions
+    const btnEditHysa = document.getElementById('btnEditHysa');
+    if (btnEditHysa) {
+      btnEditHysa.addEventListener('click', () => { ui.editingHysa = true; render(); });
+    }
+    const btnCancelHysa = document.getElementById('btnCancelHysa');
+    if (btnCancelHysa) {
+      btnCancelHysa.addEventListener('click', () => { ui.editingHysa = false; render(); });
+    }
+    const btnSaveHysa = document.getElementById('btnSaveHysa');
+    if (btnSaveHysa) {
+      btnSaveHysa.addEventListener('click', () => {
+        const balInp = document.getElementById('inputHysaBalance');
+        const rateInp = document.getElementById('inputHysaRate');
+        if (balInp && rateInp) {
+          state.hysa.balance = Math.max(parseFloat(balInp.value) || 0, 0);
+          state.hysa.rate = Math.max(parseFloat(rateInp.value) || 0, 0);
+          saveState();
+          showToast('HYSA details updated!');
+        }
+        ui.editingHysa = false;
+        render();
+      });
+    }
+
+    // Projections Slider Listeners
+    if (state.activeTab === 'projections') {
+      const sliderContrib = document.getElementById('sliderContrib');
+      const sliderReturn = document.getElementById('sliderReturn');
+
+      const updateForecast = () => {
+        const contrib = parseFloat(sliderContrib.value) || 0;
+        const rate = (parseFloat(sliderReturn.value) || 8) / 100;
+        
+        document.getElementById('sliderContribVal').textContent = '$' + contrib.toLocaleString() + ' / mo';
+        document.getElementById('sliderReturnVal').textContent = (rate * 100).toFixed(1) + '%';
+
+        function calcFutureVal(years) {
+          const months = years * 12;
+          const rMonthly = rate / 12;
+          let total = currentNetWorth * Math.pow(1 + rMonthly, months);
+          for (let i = 1; i <= months; i++) {
+            total += contrib * Math.pow(1 + rMonthly, months - i);
+          }
+          return total;
+        }
+
+        document.getElementById('proj5yr').textContent = fmtUSD(calcFutureVal(5));
+        document.getElementById('proj10yr').textContent = fmtUSD(calcFutureVal(10));
+        document.getElementById('proj20yr').textContent = fmtUSD(calcFutureVal(20));
+        document.getElementById('proj30yr').textContent = fmtUSD(calcFutureVal(30));
+      };
+
+      if (sliderContrib && sliderReturn) {
+        sliderContrib.addEventListener('input', updateForecast);
+        sliderReturn.addEventListener('input', updateForecast);
+        updateForecast();
+      }
+    }
+
+    // Goal Setter Action
+    if (state.activeTab === 'goals') {
+      const btnSaveGoal = document.getElementById('btnSaveGoal');
+      if (btnSaveGoal) {
+        btnSaveGoal.addEventListener('click', () => {
+          const val = parseFloat(document.getElementById('inputGoalTarget').value);
+          if (val > 0) {
+            state.goalTarget = val;
+            saveState();
+            showToast('Financial goal updated!');
+            render();
+          }
+        });
+      }
+    }
+  }
+
+  function saveAccountEntry(accKey) {
+    const dateInp = document.getElementById(`inputDate_${accKey}`);
+    const amtInp = document.getElementById(`inputAmt_${accKey}`);
+    const priceInp = document.getElementById(`inputPrice_${accKey}`);
+    const noteInp = document.getElementById(`inputNote_${accKey}`);
+
+    const amt = parseFloat(amtInp?.value);
+    const price = parseFloat(priceInp?.value) || state.fxaixPrice;
+    const date = dateInp?.value || todayISO();
+    const note = noteInp?.value || '';
+
+    if (!amt || amt <= 0 || !price || price <= 0) {
+      showToast('Please enter a valid amount and share price');
+      return;
+    }
+
+    const shares = amt / price;
+
+    state[accKey].push({
+      id: uid(),
+      date,
+      amount: amt,
+      price,
+      shares,
+      note
+    });
+
+    ui[accKey + 'FormOpen'] = false;
+    saveState();
+    showToast('Investment logged successfully!');
+    render();
+  }
+
+  function deleteAccountEntry(accKey, id) {
+    state[accKey] = state[accKey].filter(item => item.id !== id);
+    saveState();
+    showToast('Entry removed');
+    render();
+  }
+
+  // Export / Import Dialog
+  function openExportModal() {
+    const overlay = document.getElementById('modalOverlay');
+    const content = document.getElementById('modalContent');
+    if (!overlay || !content) return;
+
+    const jsonStr = JSON.stringify(state, null, 2);
+
+    content.innerHTML = `
+      <h3 class="modal-title">Data Backup & Restore</h3>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+        Export your portfolio JSON configuration to back up or restore state on another device.
+      </div>
+      <textarea id="jsonArea" style="width:100%; height:160px; background:var(--bg-dark); border:1px solid var(--border); color:var(--gold-light); font-family:var(--font-mono); font-size:11px; padding:8px; border-radius:8px; resize:none;">${jsonStr}</textarea>
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn-cancel" id="btnCloseModal">Close</button>
+        <button class="btn-submit" id="btnImportJson">Import JSON Data</button>
+      </div>
+    `;
+
+    overlay.classList.add('active');
+
+    document.getElementById('btnCloseModal').addEventListener('click', () => overlay.classList.remove('active'));
+    document.getElementById('btnImportJson').addEventListener('click', () => {
+      try {
+        const text = document.getElementById('jsonArea').value;
+        const parsed = JSON.parse(text);
+        if (parsed && typeof parsed === 'object') {
+          state = Object.assign({}, DEFAULT_STATE, parsed);
+          saveState();
+          overlay.classList.remove('active');
+          showToast('Data imported successfully!');
+          render();
+        }
+      } catch (err) {
+        showToast('Invalid JSON format!');
+      }
+    });
+  }
+
+  // Initial Bootup
+  loadState();
+})();
+</script>
+
+</body>
+</html>
